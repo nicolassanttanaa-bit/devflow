@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>devflow — Painel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+  <div class="app-shell">
+
+    <!-- Barra lateral -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-prompt">&gt;_</span>
+        <span class="brand-name">devflow</span>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item is-active" data-view="clients">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Clientes
+        </button>
+        <button class="nav-item" data-view="projects">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Sistemas
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <span class="user-dot"></span>
+          <span id="userEmail" class="user-email">carregando…</span>
+        </div>
+        <button id="logoutBtn" class="logout-btn">sair</button>
+      </div>
+    </aside>
+
+    <!-- Conteúdo principal -->
+    <main class="main">
+      <header class="main-header">
+        <div>
+          <p class="eyebrow" id="viewEyebrow">clientes/</p>
+          <h1 id="viewTitle">Clientes</h1>
+        </div>
+        <button id="newBtn" class="primary-btn">+ novo cliente</button>
+      </header>
+
+      <!-- View: Clientes -->
+      <section id="clientsView" class="view">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>CPF/CNPJ</th>
+                <th>Telefone</th>
+                <th>E-mail</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="clientsBody"></tbody>
+          </table>
+        </div>
+        <p id="clientsEmpty" class="empty-state" hidden>
+          <span class="empty-icon">$</span> nenhum cliente cadastrado ainda. clique em “+ novo cliente” para começar.
+        </p>
+      </section>
+
+      <!-- View: Projetos/Sistemas -->
+      <section id="projectsView" class="view" hidden>
+        <div class="projects-grid" id="projectsGrid"></div>
+        <p id="projectsEmpty" class="empty-state" hidden>
+          <span class="empty-icon">$</span> nenhum sistema cadastrado ainda. clique em “+ novo sistema” para começar.
+        </p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal: cliente -->
+  <div id="clientModal" class="modal-overlay" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="clientModalTitle">Novo cliente</h2>
+        <button class="modal-close" data-close-modal="clientModal" aria-label="Fechar">✕</button>
+      </div>
+
+      <form id="clientForm" novalidate>
+        <input type="hidden" id="clientId">
+
+        <div class="field">
+          <label for="clientName">nome do cliente</label>
+          <input type="text" id="clientName" placeholder="Ex: Maria Souza / Padaria Pão Quente" required>
+          <span class="field-error" id="clientNameError"></span>
+        </div>
+
+        <div class="field-row-inline">
+          <div class="field">
+            <label for="documentType">tipo de documento</label>
+            <select id="documentType">
+              <option value="cpf">CPF (pessoa física)</option>
+              <option value="cnpj">CNPJ (pessoa jurídica)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="clientDocument">número</label>
+            <input type="text" id="clientDocument" placeholder="000.000.000-00" inputmode="numeric">
+            <span class="field-error" id="clientDocumentError"></span>
+          </div>
+        </div>
+
+        <div class="field-row-inline">
+          <div class="field">
+            <label for="clientPhone">telefone</label>
+            <input type="text" id="clientPhone" placeholder="(11) 91234-5678" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="clientEmail">e-mail</label>
+            <input type="email" id="clientEmail" placeholder="cliente@exemplo.com">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="clientNotes">observações</label>
+          <textarea id="clientNotes" rows="3" placeholder="Informações adicionais sobre o cliente…"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" data-close-modal="clientModal">cancelar</button>
+          <button type="submit" class="primary-btn" id="clientSubmitBtn">salvar cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: sistema/projeto -->
+  <div id="projectModal" class="modal-overlay" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="projectModalTitle">Novo sistema</h2>
+        <button class="modal-close" data-close-modal="projectModal" aria-label="Fechar">✕</button>
+      </div>
+
+      <form id="projectForm" novalidate>
+        <input type="hidden" id="projectId">
+
+        <div class="field">
+          <label for="projectClient">cliente</label>
+          <select id="projectClient" required></select>
+          <span class="field-error" id="projectClientError"></span>
+        </div>
+
+        <div class="field">
+          <label for="projectDescription">descrição do sistema</label>
+          <textarea id="projectDescription" rows="4" placeholder="O que o sistema vai fazer, principais telas e funcionalidades…" required></textarea>
+          <span class="field-error" id="projectDescriptionError"></span>
+        </div>
+
+        <div class="field">
+          <label>linguagens / tecnologias <span class="cell-muted">(adicione quantas precisar)</span></label>
+          <div class="tag-input" id="tagInput">
+            <div class="tag-list" id="tagList"></div>
+            <input type="text" id="tagField" placeholder="digite uma linguagem e aperte Enter (ex: Python, depois React...)">
+          </div>
+        </div>
+
+        <div class="field-row-inline">
+          <div class="field">
+            <label for="projectPrice">valor (R$)</label>
+            <input type="number" id="projectPrice" step="0.01" min="0" placeholder="2500.00">
+          </div>
+          <div class="field">
+            <label for="projectDeadline">prazo de entrega</label>
+            <input type="date" id="projectDeadline">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="projectStatus">status</label>
+          <select id="projectStatus">
+            <option value="orcamento">Orçamento enviado</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="desenvolvimento">Em desenvolvimento</option>
+            <option value="concluido">Concluído</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" data-close-modal="projectModal">cancelar</button>
+          <button type="submit" class="primary-btn" id="projectSubmitBtn">salvar sistema</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: detalhes do sistema -->
+  <div id="projectDetailModal" class="modal-overlay" hidden>
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow" id="detailEyebrow">sistemas/</p>
+          <h2 id="detailClientName">Cliente</h2>
+        </div>
+        <button class="modal-close" data-close-modal="projectDetailModal" aria-label="Fechar">✕</button>
+      </div>
+
+      <div class="detail-tabs">
+        <button class="tab-btn is-active" data-tab="details" type="button">Detalhes</button>
+        <button class="tab-btn" data-tab="files" type="button">Arquivos</button>
+      </div>
+
+      <!-- Aba: Detalhes -->
+      <div class="tab-panel" data-tab-panel="details">
+        <div class="detail-status-row">
+          <span class="badge" id="detailStatusBadge"></span>
+          <span class="detail-created" id="detailCreatedAt"></span>
+        </div>
+
+        <div class="detail-section">
+          <h3>Cliente</h3>
+          <div class="detail-grid">
+            <div>
+              <span class="detail-label">documento</span>
+              <span class="detail-value" id="detailClientDocument">—</span>
+            </div>
+            <div>
+              <span class="detail-label">telefone</span>
+              <span class="detail-value" id="detailClientPhone">—</span>
+            </div>
+            <div>
+              <span class="detail-label">e-mail</span>
+              <span class="detail-value" id="detailClientEmail">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Descrição do sistema</h3>
+          <p class="detail-description" id="detailDescription"></p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Linguagens / tecnologias</h3>
+          <div class="detail-tags" id="detailLanguages"></div>
+        </div>
+
+        <div class="detail-section">
+          <div class="detail-grid">
+            <div>
+              <span class="detail-label">valor</span>
+              <span class="detail-value" id="detailPrice">—</span>
+            </div>
+            <div>
+              <span class="detail-label">prazo de entrega</span>
+              <span class="detail-value" id="detailDeadline">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" data-close-modal="projectDetailModal">fechar</button>
+          <button type="button" class="primary-btn" id="detailEditBtn">editar sistema</button>
+        </div>
+      </div>
+
+      <!-- Aba: Arquivos (somente interface por enquanto) -->
+      <div class="tab-panel" data-tab-panel="files" hidden>
+        <div class="file-dropzone">
+          <span class="file-dropzone-icon">📁</span>
+          <p class="file-dropzone-title">Arraste arquivos aqui ou clique para selecionar</p>
+          <button type="button" class="secondary-btn" disabled>selecionar arquivo</button>
+          <p class="file-dropzone-note">
+            o armazenamento de arquivos ainda não está ativo — por enquanto isso é só a interface.
+          </p>
+        </div>
+
+        <div class="file-list-empty">
+          <span class="empty-icon">$</span> nenhum arquivo anexado a este sistema ainda.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

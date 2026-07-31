@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>devflow — Solicitar sistema</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <style>
+    /* Ajustes específicos desta página (form maior que o de login) */
+    .auth-card { max-width: 460px; }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+
+    <section class="terminal-panel" aria-hidden="true">
+      <div class="terminal-window">
+        <div class="terminal-bar">
+          <span class="dot dot-rose"></span>
+          <span class="dot dot-amber"></span>
+          <span class="dot dot-teal"></span>
+          <span class="terminal-title">pedido.log</span>
+        </div>
+        <div class="terminal-body" id="terminalBody"></div>
+      </div>
+
+      <div class="branch-graph">
+        <svg viewBox="0 0 240 120" width="240" height="120" fill="none">
+          <path d="M20 100 V60 C20 45 30 45 45 45 H90" stroke="#2A3345" stroke-width="2"/>
+          <path d="M90 45 H220" stroke="#4FD1C5" stroke-width="2"/>
+          <circle cx="20" cy="100" r="5" fill="#8B93A7"/>
+          <circle cx="90" cy="45" r="5" fill="#4FD1C5"/>
+          <circle cx="220" cy="45" r="6" fill="#E8A33D"/>
+        </svg>
+        <span class="branch-label">seu pedido → orçamento</span>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+
+        <div class="brand">
+          <span class="brand-prompt">&gt;_</span>
+          <span class="brand-name">devflow</span>
+        </div>
+
+        <!-- Formulário de pedido -->
+        <div id="requestFormWrap">
+          <h1 class="auth-title">Solicitar um sistema</h1>
+          <p class="auth-subtitle">Conte um pouco sobre você e sobre o sistema que precisa.</p>
+
+          <form id="requestForm" novalidate>
+            <div class="field">
+              <label for="reqName">seu nome</label>
+              <input type="text" id="reqName" placeholder="Nome completo ou nome da empresa" required>
+              <span class="field-error" id="reqNameError"></span>
+            </div>
+
+            <div class="field-row-inline">
+              <div class="field">
+                <label for="reqDocumentType">tipo de documento</label>
+                <select id="reqDocumentType">
+                  <option value="cpf">CPF (pessoa física)</option>
+                  <option value="cnpj">CNPJ (pessoa jurídica)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="reqDocument">número (opcional)</label>
+                <input type="text" id="reqDocument" placeholder="000.000.000-00" inputmode="numeric">
+                <span class="field-error" id="reqDocumentError"></span>
+              </div>
+            </div>
+
+            <div class="field-row-inline">
+              <div class="field">
+                <label for="reqPhone">telefone</label>
+                <input type="text" id="reqPhone" placeholder="(11) 91234-5678" inputmode="numeric">
+              </div>
+              <div class="field">
+                <label for="reqEmail">e-mail</label>
+                <input type="email" id="reqEmail" placeholder="voce@exemplo.com">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="reqDescription">descreva o sistema que você precisa</label>
+              <textarea id="reqDescription" rows="4" placeholder="Ex: um sistema para controlar o estoque da minha loja, com cadastro de produtos e relatório de vendas…" required></textarea>
+              <span class="field-error" id="reqDescriptionError"></span>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <span class="submit-label">enviar pedido</span>
+              <span class="submit-log" id="submitLog"></span>
+            </button>
+          </form>
+
+          <p class="auth-footer">
+            é o dono do sistema? <a href="index.html" class="link-accent">entrar</a>
+          </p>
+        </div>
+
+        <!-- Confirmação após envio -->
+        <div id="requestSuccess" hidden>
+          <h1 class="auth-title">Pedido enviado ✓</h1>
+          <p class="auth-subtitle">
+            Recebemos suas informações e a descrição do sistema. Em breve entraremos
+            em contato pelo telefone ou e-mail informado.
+          </p>
+          <button type="button" class="secondary-btn" id="newRequestBtn" style="width:100%; margin-top: 8px;">
+            enviar outro pedido
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <script src="solicitar.js"></script>
+</body>
+</html>
