@@ -477,7 +477,10 @@ function renderProjects() {
         <button class="icon-btn danger" data-delete-project="${project.id}" aria-label="Excluir">🗑</button>
       </div>
       <div class="project-card-header">
-        <span class="project-client">${escapeHtml(project.name || 'sem nome')}</span>
+        <div>
+          <span class="project-client">${escapeHtml(project.name || 'sem nome')}</span>
+          <span class="project-client-sub">${escapeHtml(project.client_name)}</span>
+        </div>
       </div>
       <p class="project-description">${escapeHtml(project.description)}</p>
       <div class="project-tags">${languagesHtml || '<span class="cell-muted">sem linguagem definida</span>'}</div>
