@@ -294,10 +294,13 @@ app.get('/api/projects', requireAuth, (req, res) => {
 });
 
 app.post('/api/projects', requireAuth, (req, res) => {
-  const { clientId, description, languages, price, deadline, status } = req.body || {};
+  const { clientId, name, description, languages, price, deadline, status } = req.body || {};
 
   if (!clientId) {
     return res.status(400).json({ field: 'clientId', message: 'selecione um cliente' });
+  }
+  if (!name || !name.trim()) {
+    return res.status(400).json({ field: 'name', message: 'dê um nome para o sistema' });
   }
   if (!description || !description.trim()) {
     return res
@@ -311,6 +314,7 @@ app.post('/api/projects', requireAuth, (req, res) => {
 
   const project = createProject(req.session.userId, {
     clientId,
+    name: name.trim(),
     description: description.trim(),
     languages,
     price,
@@ -321,10 +325,13 @@ app.post('/api/projects', requireAuth, (req, res) => {
 });
 
 app.put('/api/projects/:id', requireAuth, (req, res) => {
-  const { clientId, description, languages, price, deadline, status } = req.body || {};
+  const { clientId, name, description, languages, price, deadline, status } = req.body || {};
   const existing = getProject(req.session.userId, req.params.id);
   if (!existing) return res.status(404).json({ message: 'projeto não encontrado' });
 
+  if (!name || !name.trim()) {
+    return res.status(400).json({ field: 'name', message: 'dê um nome para o sistema' });
+  }
   if (!description || !description.trim()) {
     return res
       .status(400)
@@ -333,6 +340,7 @@ app.put('/api/projects/:id', requireAuth, (req, res) => {
 
   const updated = updateProject(req.session.userId, req.params.id, {
     clientId: clientId || existing.client_id,
+    name: name.trim(),
     description: description.trim(),
     languages,
     price,

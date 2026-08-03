@@ -149,6 +149,12 @@
         <input type="hidden" id="projectId">
 
         <div class="field">
+          <label for="projectName">nome do sistema</label>
+          <input type="text" id="projectName" placeholder="Ex: Sistema de Estoque, App de Delivery…" required>
+          <span class="field-error" id="projectNameError"></span>
+        </div>
+
+        <div class="field">
           <label for="projectClient">cliente</label>
           <select id="projectClient" required></select>
           <span class="field-error" id="projectClientError"></span>
@@ -206,7 +212,7 @@
       <div class="modal-header">
         <div>
           <p class="eyebrow" id="detailEyebrow">sistemas/</p>
-          <h2 id="detailClientName">Cliente</h2>
+          <h2 id="detailProjectName">Sistema</h2>
         </div>
         <button class="modal-close" data-close-modal="projectDetailModal" aria-label="Fechar">✕</button>
       </div>
@@ -226,6 +232,10 @@
         <div class="detail-section">
           <h3>Cliente</h3>
           <div class="detail-grid">
+            <div>
+              <span class="detail-label">nome</span>
+              <span class="detail-value" id="detailClientName">—</span>
+            </div>
             <div>
               <span class="detail-label">documento</span>
               <span class="detail-value" id="detailClientDocument">—</span>

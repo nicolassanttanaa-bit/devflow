@@ -51,6 +51,16 @@ db.exec(`
   )
 `);
 
+// Migração: adiciona a coluna "name" (nome do sistema) caso o banco já
+// existisse de antes dessa funcionalidade. Se a coluna já existir, o
+// ALTER TABLE dá erro — por isso o try/catch, que simplesmente ignora
+// esse caso específico.
+try {
+  db.exec('ALTER TABLE projects ADD COLUMN name TEXT');
+} catch (err) {
+  if (!String(err.message).includes('duplicate column name')) throw err;
+}
+
 function createUser(email, passwordHash) {
   const stmt = db.prepare(
     'INSERT INTO users (email, password_hash) VALUES (?, ?)'
@@ -60,8 +70,8 @@ function createUser(email, passwordHash) {
 }
 
 function findUserByEmail(email) {
-  const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
-  return stmt.get(email);
+  const stmt = db.prepare('SELECT * FROM users WHERE lower(email) = lower(?)');
+  return stmt.get(String(email || '').trim());
 }
 
 // ---------------------------------------------------------------- clientes
@@ -153,12 +163,13 @@ function listProjects(userId) {
 
 function createProject(userId, data) {
   const stmt = db.prepare(`
-    INSERT INTO projects (user_id, client_id, description, languages, price, deadline, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO projects (user_id, client_id, name, description, languages, price, deadline, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const info = stmt.run(
     userId,
     data.clientId,
+    data.name,
     data.description,
     data.languages || null,
     data.price || null,
@@ -186,11 +197,12 @@ function getProject(userId, id) {
 function updateProject(userId, id, data) {
   const stmt = db.prepare(`
     UPDATE projects
-    SET client_id = ?, description = ?, languages = ?, price = ?, deadline = ?, status = ?
+    SET client_id = ?, name = ?, description = ?, languages = ?, price = ?, deadline = ?, status = ?
     WHERE id = ? AND user_id = ?
   `);
   stmt.run(
     data.clientId,
+    data.name,
     data.description,
     data.languages || null,
     data.price || null,

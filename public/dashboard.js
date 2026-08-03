@@ -407,6 +407,7 @@ function populateClientSelect() {
 function openProjectModal(project) {
   projectForm.reset();
   document.getElementById('projectId').value = '';
+  document.getElementById('projectNameError').textContent = '';
   document.getElementById('projectClientError').textContent = '';
   document.getElementById('projectDescriptionError').textContent = '';
   populateClientSelect();
@@ -416,6 +417,7 @@ function openProjectModal(project) {
   if (project) {
     document.getElementById('projectModalTitle').textContent = 'Editar sistema';
     document.getElementById('projectId').value = project.id;
+    document.getElementById('projectName').value = project.name || '';
     projectClientSelect.value = project.client_id;
     document.getElementById('projectDescription').value = project.description;
     document.getElementById('projectPrice').value = project.price || '';
@@ -469,12 +471,13 @@ function renderProjects() {
     card.dataset.projectId = project.id;
     card.innerHTML = `
       ${primary ? `<span class="project-lang-badge">${escapeHtml(primary)}</span>` : ''}
+      <span class="project-logo-badge">&gt;_</span>
       <div class="project-card-actions">
         <button class="icon-btn" data-edit-project="${project.id}" aria-label="Editar">✎</button>
         <button class="icon-btn danger" data-delete-project="${project.id}" aria-label="Excluir">🗑</button>
       </div>
       <div class="project-card-header">
-        <span class="project-client">${escapeHtml(project.client_name)}</span>
+        <span class="project-client">${escapeHtml(project.name || 'sem nome')}</span>
       </div>
       <p class="project-description">${escapeHtml(project.description)}</p>
       <div class="project-tags">${languagesHtml || '<span class="cell-muted">sem linguagem definida</span>'}</div>
@@ -517,12 +520,18 @@ projectForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const id = document.getElementById('projectId').value;
+  const name = document.getElementById('projectName').value.trim();
   const clientId = projectClientSelect.value;
   const description = document.getElementById('projectDescription').value.trim();
 
+  document.getElementById('projectNameError').textContent = '';
   document.getElementById('projectClientError').textContent = '';
   document.getElementById('projectDescriptionError').textContent = '';
 
+  if (!name) {
+    document.getElementById('projectNameError').textContent = 'dê um nome para o sistema';
+    return;
+  }
   if (!clientId) {
     document.getElementById('projectClientError').textContent = 'selecione um cliente';
     return;
@@ -539,6 +548,7 @@ projectForm.addEventListener('submit', async (event) => {
     : currentTagList;
 
   const payload = {
+    name,
     clientId,
     description,
     languages: orderedLanguages.join(', '),
@@ -558,7 +568,9 @@ projectForm.addEventListener('submit', async (event) => {
   const data = await res.json();
 
   if (!res.ok) {
-    if (data.field === 'clientId') {
+    if (data.field === 'name') {
+      document.getElementById('projectNameError').textContent = data.message;
+    } else if (data.field === 'clientId') {
       document.getElementById('projectClientError').textContent = data.message;
     } else {
       document.getElementById('projectDescriptionError').textContent = data.message || 'erro ao salvar';
@@ -593,6 +605,7 @@ function resetDetailTabs() {
 }
 
 function openProjectDetail(project) {
+  document.getElementById('detailProjectName').textContent = project.name || 'sem nome';
   document.getElementById('detailClientName').textContent = project.client_name;
 
   const badge = document.getElementById('detailStatusBadge');
