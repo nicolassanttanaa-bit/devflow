@@ -1,0 +1,16 @@
+RELATÓRIO DE SISTEMAS — devflow
+Gerado em: 03/08/2026 às 02:42:39
+Total de sistemas: 1
+============================================================
+
+[1] calculadora
+Cliente: Nicolas
+Documento: 519.524.558-47
+Telefone: (11) 91760-1003
+E-mail: nicolassanttanaa@gmail.com
+Descrição: ewffeqw
+Linguagens: Python, JavaScript, HTML, CSS
+Valor: R$ 345,00
+Prazo de entrega: sem prazo definido
+Status: Orçamento enviado
+------------------------------------------------------------

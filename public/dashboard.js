@@ -540,6 +540,7 @@ function renderProjects() {
       ${primary ? `<span class="project-lang-badge">${escapeHtml(primary)}</span>` : ''}
       <span class="project-logo-badge">&gt;_</span>
       <div class="project-card-actions">
+        <button class="icon-btn" data-export-project="${project.id}" aria-label="Exportar .txt">⬇</button>
         <button class="icon-btn" data-edit-project="${project.id}" aria-label="Editar">✎</button>
         <button class="icon-btn danger" data-delete-project="${project.id}" aria-label="Excluir">🗑</button>
       </div>
@@ -565,12 +566,18 @@ function renderProjects() {
   // Abrir detalhes ao clicar no card (fora dos botões de ação)
   projectsGrid.querySelectorAll('.project-card').forEach((card) => {
     card.addEventListener('click', (e) => {
-      if (e.target.closest('[data-edit-project], [data-delete-project]')) return;
+      if (e.target.closest('[data-edit-project], [data-delete-project], [data-export-project]')) return;
       const project = projectsData.find((p) => p.id == card.dataset.projectId);
       openProjectDetail(project);
     });
   });
 
+  projectsGrid.querySelectorAll('[data-export-project]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const project = projectsData.find((p) => p.id == btn.dataset.exportProject);
+      exportProjectTxt(project);
+    });
+  });
   projectsGrid.querySelectorAll('[data-edit-project]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const project = projectsData.find((p) => p.id == btn.dataset.editProject);
@@ -807,59 +814,38 @@ function buildProjectTxt(project) {
     .map((l) => l.trim())
     .filter(Boolean);
 
-  const priceText =
-    project.price != null && project.price !== '' ? currencyFormatter.format(project.price) : 'a combinar';
-
-  const deadlineText = project.deadline
-    ? new Date(project.deadline + 'T00:00:00').toLocaleDateString('pt-BR')
-    : 'sem prazo definido';
-
-  const createdAtText = project.created_at
-    ? new Date(project.created_at.replace(' ', 'T') + 'Z').toLocaleDateString('pt-BR')
-    : '—';
-
-  const geradoEm = new Date().toLocaleString('pt-BR');
-
   return [
     '========================================',
     ` SISTEMA: ${project.name || 'sem nome'}`,
     '========================================',
     '',
-    '--- CLIENTE ---',
-    `Nome: ${project.client_name || '—'}`,
-    `Documento: ${project.client_document || '—'}`,
-    `Telefone: ${project.client_phone || '—'}`,
-    `E-mail: ${project.client_email || '—'}`,
+    `Cliente: ${project.client_name || '—'}`,
     '',
-    '--- DESCRIÇÃO DO SISTEMA ---',
+    'Descrição:',
     project.description || '—',
     '',
-    '--- DETALHES ---',
     `Linguagens/tecnologias: ${languages.length ? languages.join(', ') : '—'}`,
-    `Valor: ${priceText}`,
-    `Prazo de entrega: ${deadlineText}`,
-    `Status: ${statusLabels[project.status] || project.status}`,
-    `Criado em: ${createdAtText}`,
-    '',
-    '----------------------------------------',
-    `Gerado automaticamente pelo devflow em ${geradoEm}`,
   ].join('\n');
 }
 
-document.getElementById('createFolderBtn').addEventListener('click', () => {
-  if (!currentDetailProject) return;
+function exportProjectTxt(project) {
+  if (!project) return;
 
-  const content = buildProjectTxt(currentDetailProject);
+  const content = buildProjectTxt(project);
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${sanitizeFilename(currentDetailProject.name)}.txt`;
+  link.download = `${sanitizeFilename(project.name)}.txt`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+document.getElementById('createFolderBtn').addEventListener('click', () => {
+  exportProjectTxt(currentDetailProject);
 });
 
 // ============================================================
