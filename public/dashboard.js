@@ -99,6 +99,7 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
 // ============================================================
 const navItems = document.querySelectorAll('.nav-item');
 const views = {
+  home: document.getElementById('homeView'),
   clients: document.getElementById('clientsView'),
   projects: document.getElementById('projectsView'),
 };
@@ -106,7 +107,7 @@ const viewTitle = document.getElementById('viewTitle');
 const viewEyebrow = document.getElementById('viewEyebrow');
 const newBtn = document.getElementById('newBtn');
 
-let activeView = 'clients';
+let activeView = 'home';
 
 function setActiveView(view) {
   activeView = view;
@@ -115,13 +116,19 @@ function setActiveView(view) {
     el.hidden = key !== view;
   });
 
-  if (view === 'clients') {
+  if (view === 'home') {
+    viewEyebrow.textContent = 'menu principal/';
+    viewTitle.textContent = 'Visão geral';
+    newBtn.hidden = true;
+  } else if (view === 'clients') {
     viewEyebrow.textContent = 'clientes/';
     viewTitle.textContent = 'Clientes';
+    newBtn.hidden = false;
     newBtn.textContent = '+ novo cliente';
   } else {
     viewEyebrow.textContent = 'sistemas/';
     viewTitle.textContent = 'Sistemas';
+    newBtn.hidden = false;
     newBtn.textContent = '+ novo sistema';
   }
 }
@@ -133,7 +140,7 @@ navItems.forEach((item) => {
 newBtn.addEventListener('click', () => {
   if (activeView === 'clients') {
     openClientModal();
-  } else {
+  } else if (activeView === 'projects') {
     openProjectModal();
   }
 });
@@ -441,6 +448,7 @@ async function loadProjects() {
   const res = await fetch('/api/projects');
   projectsData = await res.json();
   renderProjects();
+  renderHomeDashboard();
 }
 
 function renderProjects() {
@@ -586,6 +594,75 @@ projectForm.addEventListener('submit', async (event) => {
 });
 
 // ============================================================
+// Menu Principal: contadores por status + agenda de prazos
+// ============================================================
+function renderHomeDashboard() {
+  const statsGrid = document.getElementById('statsGrid');
+  const counts = { orcamento: 0, aprovado: 0, desenvolvimento: 0, concluido: 0, cancelado: 0 };
+  projectsData.forEach((p) => {
+    if (counts[p.status] !== undefined) counts[p.status] += 1;
+  });
+
+  statsGrid.innerHTML = `
+    <div class="stat-card stat-card--total">
+      <div class="stat-value">${projectsData.length}</div>
+      <div class="stat-label">total de sistemas</div>
+    </div>
+    ${Object.entries(counts)
+      .map(
+        ([status, count]) => `
+      <div class="stat-card stat-card--${status}">
+        <div class="stat-value">${count}</div>
+        <div class="stat-label">${statusLabels[status]}</div>
+      </div>
+    `
+      )
+      .join('')}
+  `;
+
+  // ---- Agenda de prazos ----
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const in7Days = new Date(today);
+  in7Days.setDate(in7Days.getDate() + 7);
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+  const withDeadline = projectsData
+    .filter((p) => p.deadline && p.status !== 'concluido' && p.status !== 'cancelado')
+    .map((p) => ({ ...p, deadlineDate: new Date(p.deadline + 'T00:00:00') }))
+    .sort((a, b) => a.deadlineDate - b.deadlineDate);
+
+  const overdue = withDeadline.filter((p) => p.deadlineDate < today);
+  const thisWeek = withDeadline.filter((p) => p.deadlineDate >= today && p.deadlineDate <= in7Days);
+  const restOfMonth = withDeadline.filter(
+    (p) => p.deadlineDate > in7Days && p.deadlineDate <= endOfMonth
+  );
+
+  renderAgendaColumn('overdueList', 'overdueEmpty', overdue);
+  renderAgendaColumn('weekList', 'weekEmpty', thisWeek);
+  renderAgendaColumn('monthList', 'monthEmpty', restOfMonth);
+}
+
+function renderAgendaColumn(listId, emptyId, items) {
+  const list = document.getElementById(listId);
+  const empty = document.getElementById(emptyId);
+  list.innerHTML = '';
+  empty.hidden = items.length > 0;
+
+  items.forEach((project) => {
+    const item = document.createElement('div');
+    item.className = `agenda-item project-card--${project.status}`;
+    item.innerHTML = `
+      <span class="agenda-item-title">${escapeHtml(project.name || 'sem nome')}</span>
+      <span class="agenda-item-sub">${escapeHtml(project.client_name)}</span>
+      <span class="agenda-item-date">${project.deadlineDate.toLocaleDateString('pt-BR')} · ${statusLabels[project.status]}</span>
+    `;
+    item.addEventListener('click', () => openProjectDetail(project));
+    list.appendChild(item);
+  });
+}
+
+// ============================================================
 // Detalhes do sistema (modal com abas: Detalhes / Arquivos)
 // ============================================================
 const detailTabs = document.querySelectorAll('#projectDetailModal .tab-btn');
@@ -663,6 +740,7 @@ function escapeHtml(value) {
 // ============================================================
 (async function init() {
   await checkAuth();
+  setActiveView('home');
   await loadClients();
   await loadProjects();
 })();

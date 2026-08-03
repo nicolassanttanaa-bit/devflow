@@ -21,7 +21,11 @@
       </div>
 
       <nav class="nav">
-        <button class="nav-item is-active" data-view="clients">
+        <button class="nav-item is-active" data-view="home">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>
+          Menu principal
+        </button>
+        <button class="nav-item" data-view="clients">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Clientes
         </button>
@@ -50,8 +54,31 @@
         <button id="newBtn" class="primary-btn">+ novo cliente</button>
       </header>
 
+      <!-- View: Menu Principal -->
+      <section id="homeView" class="view">
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <div class="agenda-columns">
+          <div class="agenda-column">
+            <h3 class="agenda-title agenda-title--rose">atrasados</h3>
+            <div class="agenda-list" id="overdueList"></div>
+            <p class="agenda-empty" id="overdueEmpty" hidden>nada atrasado — tudo em dia por aqui.</p>
+          </div>
+          <div class="agenda-column">
+            <h3 class="agenda-title agenda-title--teal">próximos 7 dias</h3>
+            <div class="agenda-list" id="weekList"></div>
+            <p class="agenda-empty" id="weekEmpty" hidden>nenhum prazo nos próximos 7 dias.</p>
+          </div>
+          <div class="agenda-column">
+            <h3 class="agenda-title agenda-title--amber">resto do mês</h3>
+            <div class="agenda-list" id="monthList"></div>
+            <p class="agenda-empty" id="monthEmpty" hidden>nenhum outro prazo este mês.</p>
+          </div>
+        </div>
+      </section>
+
       <!-- View: Clientes -->
-      <section id="clientsView" class="view">
+      <section id="clientsView" class="view" hidden>
         <div class="table-wrap">
           <table>
             <thead>

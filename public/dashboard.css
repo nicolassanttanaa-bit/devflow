@@ -211,6 +211,114 @@ button, input, select, textarea {
 }
 
 /* ========================================
+   Menu Principal (Home)
+   ======================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--stat-accent, var(--accent-slate));
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.stat-card--orcamento { --stat-accent: var(--accent-slate); }
+.stat-card--aprovado { --stat-accent: var(--accent-amber); }
+.stat-card--desenvolvimento { --stat-accent: var(--accent-teal); }
+.stat-card--concluido { --stat-accent: var(--accent-green); }
+.stat-card--cancelado { --stat-accent: var(--accent-rose); }
+.stat-card--total { --stat-accent: var(--text-primary); }
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.agenda-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.agenda-title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
+.agenda-title--rose { color: var(--accent-rose); border-bottom-color: rgba(229, 98, 107, 0.3); }
+.agenda-title--teal { color: var(--accent-teal); border-bottom-color: rgba(79, 209, 197, 0.3); }
+.agenda-title--amber { color: var(--accent-amber); border-bottom-color: rgba(232, 163, 61, 0.3); }
+
+.agenda-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agenda-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--card-accent, var(--accent-slate));
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.agenda-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.agenda-item-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  display: block;
+}
+
+.agenda-item-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 2px;
+}
+
+.agenda-item-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 6px;
+}
+
+.agenda-empty {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ========================================
    Botões
    ======================================== */
 .primary-btn {
