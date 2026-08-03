@@ -589,58 +589,87 @@ tbody tr:hover {
   margin-top: 20px;
 }
 
-/* Tag input (linguagens) */
-.tag-input {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-}
-
-.tag-list {
+/* Checkboxes de linguagem (predefinidas) */
+.lang-checkbox-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: 8px;
 }
 
-.tag-list:empty {
-  margin-bottom: 0;
+.lang-toggle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.tag-chip {
-  display: inline-flex;
+.lang-toggle:hover {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.lang-toggle.is-selected {
+  background: rgba(232, 163, 61, 0.15);
+  border-color: rgba(232, 163, 61, 0.45);
+  color: var(--accent-amber);
+}
+
+/* Seletor de linguagem principal */
+.primary-lang-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.primary-lang-option {
+  display: flex;
   align-items: center;
   gap: 6px;
   font-family: var(--font-mono);
   font-size: 12px;
-  background: rgba(232, 163, 61, 0.12);
-  color: var(--accent-amber);
-  border: 1px solid rgba(232, 163, 61, 0.3);
-  padding: 4px 8px;
-  border-radius: 999px;
-}
-
-.tag-chip button {
-  background: none;
-  border: none;
-  color: inherit;
+  color: var(--text-muted);
   cursor: pointer;
-  font-size: 12px;
-  line-height: 1;
-  padding: 0;
 }
 
-#tagField {
-  border: none;
-  background: none;
-  width: 100%;
-  padding: 4px 2px;
+.primary-lang-option input[type="radio"] {
+  accent-color: var(--accent-amber);
+  width: 14px;
+  height: 14px;
 }
 
-#tagField:focus {
-  outline: none;
-  box-shadow: none;
+/* Selo de linguagem principal (sobrepõe o canto superior esquerdo do card) */
+.project-card {
+  margin-top: 12px;
+}
+
+.project-lang-badge {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: var(--surface-alt);
+  color: var(--accent-amber);
+  border: 1px solid rgba(232, 163, 61, 0.5);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.pill-primary {
+  background: rgba(232, 163, 61, 0.15) !important;
+  color: var(--accent-amber) !important;
+  border-color: rgba(232, 163, 61, 0.4) !important;
+  font-weight: 600;
 }
 
 /* ========================================

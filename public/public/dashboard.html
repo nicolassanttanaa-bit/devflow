@@ -161,11 +161,13 @@
         </div>
 
         <div class="field">
-          <label>linguagens / tecnologias <span class="cell-muted">(adicione quantas precisar)</span></label>
-          <div class="tag-input" id="tagInput">
-            <div class="tag-list" id="tagList"></div>
-            <input type="text" id="tagField" placeholder="digite uma linguagem e aperte Enter (ex: Python, depois React...)">
-          </div>
+          <label>linguagens / tecnologias <span class="cell-muted">(marque uma ou mais)</span></label>
+          <div class="lang-checkbox-grid" id="langCheckboxGrid"></div>
+        </div>
+
+        <div class="field" id="primaryLangField" hidden>
+          <label>linguagem principal <span class="cell-muted">(aparece em destaque no card)</span></label>
+          <div class="primary-lang-options" id="primaryLangOptions"></div>
         </div>
 
         <div class="field-row-inline">

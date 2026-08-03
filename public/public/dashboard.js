@@ -314,10 +314,18 @@ const projectsGrid = document.getElementById('projectsGrid');
 const projectsEmpty = document.getElementById('projectsEmpty');
 const projectForm = document.getElementById('projectForm');
 const projectClientSelect = document.getElementById('projectClient');
-const tagField = document.getElementById('tagField');
-const tagList = document.getElementById('tagList');
+const langCheckboxGrid = document.getElementById('langCheckboxGrid');
+const primaryLangField = document.getElementById('primaryLangField');
+const primaryLangOptions = document.getElementById('primaryLangOptions');
+
+// Lista fixa de linguagens/tecnologias disponíveis para escolha.
+const AVAILABLE_LANGUAGES = [
+  'Python', 'JavaScript', 'HTML', 'CSS', 'Java',
+  'C++', 'C#', 'C', 'Go', 'Lua', 'Ruby',
+];
 
 let projectsData = [];
+let primaryLanguage = null; // linguagem marcada como principal no formulário atual
 
 const statusLabels = {
   orcamento: 'Orçamento enviado',
@@ -332,33 +340,59 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 });
 
-function renderTagList() {
-  tagList.innerHTML = '';
-  currentTagList.forEach((tag, index) => {
-    const chip = document.createElement('span');
-    chip.className = 'tag-chip';
-    chip.innerHTML = `${escapeHtml(tag)} <button type="button" data-remove-tag="${index}">✕</button>`;
-    tagList.appendChild(chip);
-  });
-  tagList.querySelectorAll('[data-remove-tag]').forEach((btn) => {
+// ------------------------------------------------------------------
+// Checkboxes de linguagem (currentTagList guarda as selecionadas, na
+// ordem em que foram marcadas — a primeira posição, ao salvar, sempre
+// será a linguagem principal escolhida).
+// ------------------------------------------------------------------
+function renderLangCheckboxes() {
+  langCheckboxGrid.innerHTML = '';
+  AVAILABLE_LANGUAGES.forEach((lang) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'lang-toggle' + (currentTagList.includes(lang) ? ' is-selected' : '');
+    btn.textContent = lang;
     btn.addEventListener('click', () => {
-      currentTagList.splice(Number(btn.dataset.removeTag), 1);
-      renderTagList();
+      const idx = currentTagList.indexOf(lang);
+      if (idx === -1) {
+        currentTagList.push(lang);
+      } else {
+        currentTagList.splice(idx, 1);
+        if (primaryLanguage === lang) primaryLanguage = null;
+      }
+      renderLangCheckboxes();
+      renderPrimaryOptions();
     });
+    langCheckboxGrid.appendChild(btn);
   });
 }
 
-tagField.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ',') {
-    e.preventDefault();
-    const value = tagField.value.trim();
-    if (value && !currentTagList.includes(value)) {
-      currentTagList.push(value);
-      renderTagList();
-    }
-    tagField.value = '';
+function renderPrimaryOptions() {
+  if (currentTagList.length <= 1) {
+    primaryLangField.hidden = true;
+    primaryLanguage = currentTagList[0] || null;
+    return;
   }
-});
+
+  if (!primaryLanguage || !currentTagList.includes(primaryLanguage)) {
+    primaryLanguage = currentTagList[0];
+  }
+
+  primaryLangField.hidden = false;
+  primaryLangOptions.innerHTML = '';
+  currentTagList.forEach((lang, index) => {
+    const label = document.createElement('label');
+    label.className = 'primary-lang-option';
+    label.innerHTML = `
+      <input type="radio" name="primaryLang" value="${escapeHtml(lang)}" ${lang === primaryLanguage ? 'checked' : ''}>
+      ${escapeHtml(lang)}
+    `;
+    label.querySelector('input').addEventListener('change', () => {
+      primaryLanguage = lang;
+    });
+    primaryLangOptions.appendChild(label);
+  });
+}
 
 function populateClientSelect() {
   projectClientSelect.innerHTML = '<option value="">selecione um cliente…</option>';
@@ -377,6 +411,7 @@ function openProjectModal(project) {
   document.getElementById('projectDescriptionError').textContent = '';
   populateClientSelect();
   currentTagList = [];
+  primaryLanguage = null;
 
   if (project) {
     document.getElementById('projectModalTitle').textContent = 'Editar sistema';
@@ -386,14 +421,17 @@ function openProjectModal(project) {
     document.getElementById('projectPrice').value = project.price || '';
     document.getElementById('projectDeadline').value = project.deadline || '';
     document.getElementById('projectStatus').value = project.status || 'orcamento';
+    // A primeira linguagem salva é sempre a principal (por convenção).
     currentTagList = project.languages
       ? project.languages.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
+    primaryLanguage = currentTagList[0] || null;
   } else {
     document.getElementById('projectModalTitle').textContent = 'Novo sistema';
   }
 
-  renderTagList();
+  renderLangCheckboxes();
+  renderPrimaryOptions();
   openModal('projectModal');
 }
 
@@ -408,11 +446,14 @@ function renderProjects() {
   projectsEmpty.hidden = projectsData.length > 0;
 
   projectsData.forEach((project) => {
-    const languagesHtml = (project.languages || '')
+    const languagesList = (project.languages || '')
       .split(',')
       .map((l) => l.trim())
-      .filter(Boolean)
-      .map((l) => `<span class="pill">${escapeHtml(l)}</span>`)
+      .filter(Boolean);
+    const primary = languagesList[0] || null;
+
+    const languagesHtml = languagesList
+      .map((l, i) => `<span class="pill${i === 0 ? ' pill-primary' : ''}">${escapeHtml(l)}</span>`)
       .join('');
 
     const priceText = project.price != null && project.price !== ''
@@ -427,6 +468,7 @@ function renderProjects() {
     card.className = `project-card project-card--${project.status}`;
     card.dataset.projectId = project.id;
     card.innerHTML = `
+      ${primary ? `<span class="project-lang-badge">${escapeHtml(primary)}</span>` : ''}
       <div class="project-card-actions">
         <button class="icon-btn" data-edit-project="${project.id}" aria-label="Editar">✎</button>
         <button class="icon-btn danger" data-delete-project="${project.id}" aria-label="Excluir">🗑</button>
@@ -490,10 +532,16 @@ projectForm.addEventListener('submit', async (event) => {
     return;
   }
 
+  // A principal sempre vai em primeiro no texto salvo — é assim que o
+  // resto do app (card, detalhes) sabe qual delas é a principal.
+  const orderedLanguages = primaryLanguage
+    ? [primaryLanguage, ...currentTagList.filter((l) => l !== primaryLanguage)]
+    : currentTagList;
+
   const payload = {
     clientId,
     description,
-    languages: currentTagList.join(', '),
+    languages: orderedLanguages.join(', '),
     price: document.getElementById('projectPrice').value || null,
     deadline: document.getElementById('projectDeadline').value || null,
     status: document.getElementById('projectStatus').value,
@@ -567,7 +615,7 @@ function openProjectDetail(project) {
     .filter(Boolean);
   const detailLanguages = document.getElementById('detailLanguages');
   detailLanguages.innerHTML = languages.length
-    ? languages.map((l) => `<span class="pill">${escapeHtml(l)}</span>`).join('')
+    ? languages.map((l, i) => `<span class="pill${i === 0 ? ' pill-primary' : ''}">${i === 0 ? '★ ' : ''}${escapeHtml(l)}</span>`).join('')
     : '<span class="cell-muted">sem linguagem definida</span>';
 
   document.getElementById('detailPrice').textContent =
