@@ -51,7 +51,10 @@
           <p class="eyebrow" id="viewEyebrow">clientes/</p>
           <h1 id="viewTitle">Clientes</h1>
         </div>
-        <button id="newBtn" class="primary-btn">+ novo cliente</button>
+        <div class="header-actions">
+          <button id="exportBtn" class="secondary-btn" hidden>⬇ exportar .txt</button>
+          <button id="newBtn" class="primary-btn">+ novo cliente</button>
+        </div>
       </header>
 
       <!-- View: Menu Principal -->
@@ -309,6 +312,14 @@
 
       <!-- Aba: Arquivos (somente interface por enquanto) -->
       <div class="tab-panel" data-tab-panel="files" hidden>
+        <div class="file-export-box">
+          <button type="button" class="primary-btn" id="createFolderBtn" style="width: 100%;">criar pasta?</button>
+          <p class="file-dropzone-note" style="margin-top: 10px;">
+            por enquanto, isso gera um arquivo <strong>.txt</strong> com todas as informações
+            deste sistema e baixa direto para a pasta Downloads do seu computador.
+          </p>
+        </div>
+
         <div class="file-dropzone">
           <span class="file-dropzone-icon">📁</span>
           <p class="file-dropzone-title">Arraste arquivos aqui ou clique para selecionar</p>

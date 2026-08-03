@@ -106,6 +106,7 @@ const views = {
 const viewTitle = document.getElementById('viewTitle');
 const viewEyebrow = document.getElementById('viewEyebrow');
 const newBtn = document.getElementById('newBtn');
+const exportBtn = document.getElementById('exportBtn');
 
 let activeView = 'home';
 
@@ -120,16 +121,19 @@ function setActiveView(view) {
     viewEyebrow.textContent = 'menu principal/';
     viewTitle.textContent = 'Visão geral';
     newBtn.hidden = true;
+    exportBtn.hidden = true;
   } else if (view === 'clients') {
     viewEyebrow.textContent = 'clientes/';
     viewTitle.textContent = 'Clientes';
     newBtn.hidden = false;
     newBtn.textContent = '+ novo cliente';
+    exportBtn.hidden = true;
   } else {
     viewEyebrow.textContent = 'sistemas/';
     viewTitle.textContent = 'Sistemas';
     newBtn.hidden = false;
     newBtn.textContent = '+ novo sistema';
+    exportBtn.hidden = false;
   }
 }
 
@@ -144,6 +148,61 @@ newBtn.addEventListener('click', () => {
     openProjectModal();
   }
 });
+
+// ============================================================
+// Exportar sistemas para um arquivo .txt (baixa direto pelo navegador)
+// ============================================================
+function exportProjectsToTxt() {
+  const now = new Date();
+  const lines = [];
+
+  lines.push('RELATÓRIO DE SISTEMAS — devflow');
+  lines.push(`Gerado em: ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR')}`);
+  lines.push(`Total de sistemas: ${projectsData.length}`);
+  lines.push('='.repeat(60));
+  lines.push('');
+
+  if (projectsData.length === 0) {
+    lines.push('Nenhum sistema cadastrado ainda.');
+  }
+
+  projectsData.forEach((project, index) => {
+    const priceText = project.price != null && project.price !== ''
+      ? currencyFormatter.format(project.price)
+      : 'a combinar';
+    const deadlineText = project.deadline
+      ? new Date(project.deadline + 'T00:00:00').toLocaleDateString('pt-BR')
+      : 'sem prazo definido';
+
+    lines.push(`[${index + 1}] ${project.name || 'sem nome'}`);
+    lines.push(`Cliente: ${project.client_name}`);
+    lines.push(`Documento: ${project.client_document || '—'}`);
+    lines.push(`Telefone: ${project.client_phone || '—'}`);
+    lines.push(`E-mail: ${project.client_email || '—'}`);
+    lines.push(`Descrição: ${project.description}`);
+    lines.push(`Linguagens: ${project.languages || '—'}`);
+    lines.push(`Valor: ${priceText}`);
+    lines.push(`Prazo de entrega: ${deadlineText}`);
+    lines.push(`Status: ${statusLabels[project.status] || project.status}`);
+    lines.push('-'.repeat(60));
+    lines.push('');
+  });
+
+  const text = lines.join('\n');
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const dateSlug = now.toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sistemas-devflow-${dateSlug}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+exportBtn.addEventListener('click', exportProjectsToTxt);
 
 // ============================================================
 // Modais: abrir/fechar
@@ -684,7 +743,10 @@ function resetDetailTabs() {
   });
 }
 
+let currentDetailProject = null;
+
 function openProjectDetail(project) {
+  currentDetailProject = project;
   document.getElementById('detailProjectName').textContent = project.name || 'sem nome';
   document.getElementById('detailClientName').textContent = project.client_name;
 
@@ -725,6 +787,80 @@ function openProjectDetail(project) {
   resetDetailTabs();
   openModal('projectDetailModal');
 }
+
+// ============================================================
+// Exportar informações do sistema como .txt (baixa para Downloads)
+// ============================================================
+function sanitizeFilename(name) {
+  const clean = String(name || 'sistema')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/[^a-zA-Z0-9-_ ]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+  return clean || 'sistema';
+}
+
+function buildProjectTxt(project) {
+  const languages = (project.languages || '')
+    .split(',')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const priceText =
+    project.price != null && project.price !== '' ? currencyFormatter.format(project.price) : 'a combinar';
+
+  const deadlineText = project.deadline
+    ? new Date(project.deadline + 'T00:00:00').toLocaleDateString('pt-BR')
+    : 'sem prazo definido';
+
+  const createdAtText = project.created_at
+    ? new Date(project.created_at.replace(' ', 'T') + 'Z').toLocaleDateString('pt-BR')
+    : '—';
+
+  const geradoEm = new Date().toLocaleString('pt-BR');
+
+  return [
+    '========================================',
+    ` SISTEMA: ${project.name || 'sem nome'}`,
+    '========================================',
+    '',
+    '--- CLIENTE ---',
+    `Nome: ${project.client_name || '—'}`,
+    `Documento: ${project.client_document || '—'}`,
+    `Telefone: ${project.client_phone || '—'}`,
+    `E-mail: ${project.client_email || '—'}`,
+    '',
+    '--- DESCRIÇÃO DO SISTEMA ---',
+    project.description || '—',
+    '',
+    '--- DETALHES ---',
+    `Linguagens/tecnologias: ${languages.length ? languages.join(', ') : '—'}`,
+    `Valor: ${priceText}`,
+    `Prazo de entrega: ${deadlineText}`,
+    `Status: ${statusLabels[project.status] || project.status}`,
+    `Criado em: ${createdAtText}`,
+    '',
+    '----------------------------------------',
+    `Gerado automaticamente pelo devflow em ${geradoEm}`,
+  ].join('\n');
+}
+
+document.getElementById('createFolderBtn').addEventListener('click', () => {
+  if (!currentDetailProject) return;
+
+  const content = buildProjectTxt(currentDetailProject);
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${sanitizeFilename(currentDetailProject.name)}.txt`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+});
 
 // ============================================================
 // Util
