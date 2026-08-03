@@ -33,6 +33,12 @@ const SALT_ROUNDS = 12;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Necessário em produção (Render, Railway etc.): esses serviços ficam atrás
+// de um proxy que termina o HTTPS antes de chegar no seu servidor. Sem isso,
+// o Express não entende que a conexão é segura e o cookie de sessão (que usa
+// "secure: true" em produção) não funciona direito, derrubando o login.
+app.set('trust proxy', 1);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'defina_um_SESSION_SECRET_no_.env',
@@ -143,7 +149,7 @@ function requireAuth(req, res, next) {
 // que deve ser o e-mail da SUA conta cadastrada).
 // ------------------------------------------------------------------
 function getOwnerId() {
-  const ownerEmail = process.env.OWNER_EMAIL;
+  const ownerEmail = (process.env.OWNER_EMAIL || '').trim();
   if (!ownerEmail) return null;
   const owner = findUserByEmail(ownerEmail);
   return owner ? owner.id : null;
