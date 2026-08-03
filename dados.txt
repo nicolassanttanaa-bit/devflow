@@ -1,0 +1,10 @@
+========================================
+ SISTEMA: coisas
+========================================
+
+Cliente: Nicolas
+
+Descrição:
+awevfrr
+
+Linguagens/tecnologias: Ruby, HTML, Lua, Go
