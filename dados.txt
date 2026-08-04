@@ -1,10 +1,10 @@
 ========================================
- SISTEMA: coisas
+ SISTEMA: calculadora
 ========================================
 
 Cliente: Nicolas
 
 Descrição:
-awevfrr
+qqwf3f
 
-Linguagens/tecnologias: Ruby, HTML, Lua, Go
+Linguagens/tecnologias: Python, JavaScript, HTML, CSS
