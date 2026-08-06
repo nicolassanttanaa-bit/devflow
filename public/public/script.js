@@ -9,17 +9,16 @@ fetch('/api/me').then((res) => {
 const terminalBody = document.getElementById('terminalBody');
 
 const logLines = [
-  { html: '<span class="muted">$</span> <span class="cmd">git pull origin main</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">já atualizado</span>' },
-  { html: '<span class="muted">$</span> <span class="cmd">npm install</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">347 pacotes instalados</span>' },
-  { html: '<span class="muted">$</span> <span class="cmd">npm run test</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">28 testes passaram</span>' },
-  { html: '<span class="muted">$</span> <span class="cmd">npm run build</span>' },
-  { html: '<span class="warn">⚠</span> <span class="muted">2 avisos de lint</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">build concluído em 3.2s</span>' },
-  { html: '<span class="muted">$</span> <span class="cmd">deploy --env production</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">deploy no ar</span>' },
+  { html: '<span class="cmd">Abrindo ficha do cliente…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">ficha localizada</span>' },
+  { html: '<span class="cmd">Anotando especificação do sistema…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">linguagens registradas</span>' },
+  { html: '<span class="cmd">Conferindo prazo de entrega…</span>' },
+  { html: '<span class="warn">⚠</span> <span class="muted">2 sistemas vencem esta semana</span>' },
+  { html: '<span class="cmd">Carimbando status…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">EM DESENVOLVIMENTO</span>' },
+  { html: '<span class="cmd">Arquivando na pasta do cliente…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">ficha em dia</span>' },
 ];
 
 let lineIndex = 0;

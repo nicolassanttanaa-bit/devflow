@@ -3,10 +3,10 @@
 // ============================================================
 const terminalBody = document.getElementById('terminalBody');
 const logLines = [
-  { html: '<span class="muted">$</span> <span class="cmd">devflow request:new</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">formulário pronto</span>' },
-  { html: '<span class="muted">$</span> <span class="cmd">validando documento…</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">aguardando envio</span>' },
+  { html: '<span class="cmd">Abrindo formulário de pedido…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">ficha em branco pronta</span>' },
+  { html: '<span class="cmd">Conferindo CPF/CNPJ…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">aguardando seu pedido</span>' },
 ];
 let lineIndex = 0;
 function renderNextLine() {

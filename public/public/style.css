@@ -1,0 +1,426 @@
+/* ========================================
+   Tokens — "Prancheta & Fichário"
+   Fundo azul-anil de planta baixa (blueprint) + fichas de papel.
+   ======================================== */
+:root {
+  --blueprint: #0E2A45;
+  --blueprint-deep: #091D33;
+  --grid-line: rgba(255, 255, 255, 0.06);
+
+  --paper: #F3EEDE;
+  --paper-alt: #EAE2C9;
+  --ink: #26221A;
+  --ink-muted: #746B57;
+  --line: #CBBFA0;
+
+  --stamp-red: #A6362E;
+  --stamp-green: #3F7D52;
+  --stamp-amber: #B9812B;
+  --stamp-blue: #2F6C8C;
+
+  --font-display: 'Special Elite', 'Courier New', monospace;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  --font-sans: 'Work Sans', -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--blueprint);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* ========================================
+   Layout
+   ======================================== */
+.screen {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+}
+
+@media (max-width: 900px) {
+  .screen {
+    grid-template-columns: 1fr;
+  }
+  .terminal-panel {
+    display: none;
+  }
+}
+
+/* ========================================
+   Painel esquerdo — ficha ambiente animada
+   ======================================== */
+.terminal-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+  position: relative;
+}
+
+.terminal-window {
+  width: 100%;
+  max-width: 460px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.45);
+  transform: rotate(-0.6deg);
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--paper-alt);
+  border-bottom: 1px dashed var(--line);
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  opacity: 0.85;
+}
+.dot-rose { background: var(--stamp-red); }
+.dot-amber { background: var(--stamp-amber); }
+.dot-teal { background: var(--stamp-blue); }
+
+.terminal-title {
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.terminal-body {
+  padding: 20px 18px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 2;
+  min-height: 220px;
+}
+
+.terminal-line {
+  white-space: pre-wrap;
+  opacity: 0;
+  animation: lineIn 0.3s ease forwards;
+}
+
+.terminal-line .ok { color: var(--stamp-green); }
+.terminal-line .warn { color: var(--stamp-amber); }
+.terminal-line .muted { color: var(--ink-muted); }
+.terminal-line .cmd { color: var(--ink); font-weight: 600; }
+
+.cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background: var(--stamp-blue);
+  vertical-align: middle;
+  margin-left: 4px;
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes lineIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.branch-graph {
+  margin-top: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.85;
+}
+
+.branch-graph svg path { stroke: rgba(255,255,255,0.18) !important; }
+.branch-graph svg circle { fill: rgba(255,255,255,0.35) !important; }
+
+.branch-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.04em;
+}
+
+/* ========================================
+   Painel direito — ficha de acesso
+   ======================================== */
+.auth-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 40px 36px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+
+.brand-prompt {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--stamp-blue);
+  color: var(--stamp-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  transform: rotate(-8deg);
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.auth-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  color: var(--ink-muted);
+  font-size: 14px;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.field {
+  margin-bottom: 22px;
+}
+
+.field label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.field input[type="email"],
+.field input[type="password"],
+.field input[type="text"] {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px dashed var(--line);
+  border-radius: 0;
+  padding: 8px 2px 10px;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  transition: border-color 0.15s ease;
+}
+
+.field input::placeholder {
+  color: #A79E88;
+}
+
+.field input:focus {
+  outline: none;
+  border-bottom: 1.5px solid var(--stamp-blue);
+}
+
+.field input.invalid {
+  border-bottom-color: var(--stamp-red);
+}
+
+.field input.invalid:focus {
+  border-bottom-color: var(--stamp-red);
+}
+
+.field-error {
+  display: block;
+  min-height: 16px;
+  font-size: 12px;
+  color: var(--stamp-red);
+  margin-top: 6px;
+  font-family: var(--font-mono);
+}
+
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap input {
+  padding-right: 34px;
+}
+
+.toggle-visibility {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+}
+
+.toggle-visibility:hover {
+  color: var(--ink);
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.checkbox input {
+  accent-color: var(--stamp-blue);
+  width: 14px;
+  height: 14px;
+}
+
+.link-muted {
+  font-size: 13px;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+
+.link-muted:hover {
+  color: var(--stamp-blue);
+}
+
+.link-accent {
+  color: var(--stamp-blue);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link-accent:hover {
+  text-decoration: underline;
+}
+
+.submit-btn {
+  width: 100%;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 4px;
+  padding: 13px 16px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  height: 48px;
+  transition: transform 0.1s ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+}
+
+.submit-btn:active {
+  transform: scale(0.98) rotate(-0.3deg);
+}
+
+.submit-btn:disabled {
+  cursor: default;
+}
+
+.submit-label,
+.submit-log {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.submit-log {
+  opacity: 0;
+  transform: translateY(6px);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  gap: 6px;
+}
+
+.submit-btn.running .submit-label {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.submit-btn.running .submit-log {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.submit-btn.success {
+  background: var(--stamp-green);
+}
+
+.auth-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-muted);
+}

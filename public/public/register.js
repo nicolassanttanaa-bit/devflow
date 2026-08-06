@@ -1,12 +1,12 @@
 // Terminal ambiente (mesmo estilo da tela de login)
 const terminalBody = document.getElementById('terminalBody');
 const logLines = [
-  { html: '<span class="muted">$</span> <span class="cmd">devflow init</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">repositório criado</span>' },
-  { html: '<span class="muted">$</span> <span class="cmd">git checkout -b conta/nova</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">branch criado</span>' },
-  { html: '<span class="muted">$</span> <span class="cmd">devflow config user.email</span>' },
-  { html: '<span class="ok">✓</span> <span class="muted">configuração salva</span>' },
+  { html: '<span class="cmd">Abrindo nova ficha de acesso…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">dados conferidos</span>' },
+  { html: '<span class="cmd">Carimbando conta nova…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">conta registrada</span>' },
+  { html: '<span class="cmd">Arquivando no fichário…</span>' },
+  { html: '<span class="ok">✓</span> <span class="muted">pronto pra usar</span>' },
 ];
 let lineIndex = 0;
 function renderNextLine() {

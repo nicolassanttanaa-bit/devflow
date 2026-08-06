@@ -796,18 +796,9 @@ function openProjectDetail(project) {
 }
 
 // ============================================================
-// Exportar informações do sistema como .txt (baixa para Downloads)
+// Exportar informações do sistema como dados.txt (sempre o mesmo
+// arquivo — se já existir, o conteúdo é sobrescrito/atualizado)
 // ============================================================
-function sanitizeFilename(name) {
-  const clean = String(name || 'sistema')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // remove acentos
-    .replace(/[^a-zA-Z0-9-_ ]/g, '')
-    .trim()
-    .replace(/\s+/g, '-');
-  return clean || 'sistema';
-}
-
 function buildProjectTxt(project) {
   const languages = (project.languages || '')
     .split(',')
@@ -828,16 +819,49 @@ function buildProjectTxt(project) {
   ].join('\n');
 }
 
-function exportProjectTxt(project) {
-  if (!project) return;
+// Guarda a "referência" do arquivo dados.txt depois que o usuário escolhe/cria
+// ele pela primeira vez nessa sessão do navegador. Nas próximas exportações,
+// escrevemos direto nesse mesmo arquivo (sobrescrevendo o conteúdo antigo)
+// sem precisar perguntar de novo onde salvar.
+let dadosFileHandle = null;
 
+async function exportProjectTxt(project) {
+  if (!project) return;
   const content = buildProjectTxt(project);
+
+  // Navegadores baseados em Chromium (Chrome, Edge, Opera...) suportam a
+  // File System Access API, que permite reescrever um arquivo específico
+  // de verdade, em vez de só "baixar" um arquivo novo toda vez.
+  if (window.showSaveFilePicker) {
+    try {
+      if (!dadosFileHandle) {
+        dadosFileHandle = await window.showSaveFilePicker({
+          suggestedName: 'dados.txt',
+          types: [{ description: 'Arquivo de texto', accept: { 'text/plain': ['.txt'] } }],
+        });
+      }
+      // createWritable() já apaga o conteúdo anterior do arquivo antes de escrever.
+      const writable = await dadosFileHandle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return; // usuário fechou a janela de escolher arquivo
+      console.error('Não foi possível escrever direto no arquivo, baixando normalmente:', err);
+      dadosFileHandle = null;
+      // segue para o modo alternativo abaixo
+    }
+  }
+
+  // Modo alternativo (Firefox, Safari, ou se algo falhar acima): baixa um
+  // arquivo "dados.txt" normal. Como esse método não sobrescreve de
+  // verdade, se já existir um "dados.txt" na pasta o navegador pode salvar
+  // como "dados (1).txt" — isso é uma limitação do próprio navegador.
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
-
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${sanitizeFilename(project.name)}.txt`;
+  link.download = 'dados.txt';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -847,6 +871,7 @@ function exportProjectTxt(project) {
 document.getElementById('createFolderBtn').addEventListener('click', () => {
   exportProjectTxt(currentDetailProject);
 });
+
 
 // ============================================================
 // Util
